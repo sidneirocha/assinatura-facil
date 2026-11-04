@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Crie e salve assinaturas de e-mail para sua equipe.">
+  <title>Assinatura Fácil — Gerador de assinaturas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Assinatura Fácil">
+        <span class="brand-mark">A</span>
+        <span>assinatura<span class="brand-accent">fácil</span></span>
+      </a>
+      <div class="topbar-meta"><span class="live-dot"></span> Gerador da equipe</div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="kicker">Identidade em cada mensagem</p>
+          <h1>Uma assinatura que<br><em>fala por você.</em></h1>
+          <p class="hero-copy">Monte, visualize e compartilhe assinaturas profissionais em poucos minutos.</p>
+        </div>
+        <div class="hero-note"><span>01</span><p>Escolha um layout<br>e preencha seus dados.</p></div>
+      </section>
+
+      <section class="workspace" aria-label="Gerador de assinatura">
+        <form class="editor" id="signature-form">
+          <div class="section-heading"><span class="step">01</span><div><h2>Seus dados</h2><p>As informações que aparecem na assinatura.</p></div></div>
+          <div class="field-grid">
+            <label>Nome completo<input name="name" data-field="name" value="Marina Costa" maxlength="80" autocomplete="name"></label>
+            <label>Cargo / função<input name="role" data-field="role" value="Diretora de Marketing" maxlength="100"></label>
+            <label>Empresa<input name="company" data-field="company" value="Estúdio Aurora" maxlength="80" autocomplete="organization"></label>
+            <label>E-mail<input type="email" name="email" data-field="email" value="marina@estudioaurora.com" maxlength="120" autocomplete="email"></label>
+            <label>Telefone<input type="tel" name="phone" data-field="phone" value="+55 11 99999-9999" maxlength="30" autocomplete="tel"></label>
+            <label>Site<input name="website" data-field="website" value="estudioaurora.com" maxlength="120" autocomplete="url"></label>
+            <label class="wide">URL pública do logo<input type="url" name="logo" data-field="logo" placeholder="https://.../logo.png" maxlength="500" autocomplete="url"><small>Use uma imagem pública hospedada no Google Drive ou no site da empresa.</small></label>
+            <label class="wide">Frase ou informação extra<input name="tagline" data-field="tagline" value="Criatividade que aproxima marcas e pessoas." maxlength="160"></label>
+          </div>
+
+          <div class="section-heading section-heading-layout"><span class="step">02</span><div><h2>Escolha o estilo</h2><p>Você pode trocar a qualquer momento.</p></div></div>
+          <div class="layout-options" role="radiogroup" aria-label="Layout da assinatura">
+            <label class="layout-card is-selected"><input type="radio" name="layout" value="aurora" checked><span class="layout-sample sample-aurora"><b>MC</b><i></i><span></span></span><strong>Aurora</strong><small>Com destaque</small></label>
+            <label class="layout-card"><input type="radio" name="layout" value="linha"><span class="layout-sample sample-linha"><b>MC</b><span></span></span><strong>Linha</strong><small>Horizontal</small></label>
+            <label class="layout-card"><input type="radio" name="layout" value="clean"><span class="layout-sample sample-clean"><b>MC</b><span></span></span><strong>Clean</strong><small>Minimalista</small></label>
+          </div>
+
+          <div class="style-row">
+            <label>Cor de destaque<span class="color-input"><input type="color" name="primary" data-field="primary" value="#e8694f"><output data-color-output>#E8694F</output></span></label>
+            <label>Cor do texto<span class="color-input"><input type="color" name="ink" data-field="ink" value="#1f2b2e"><output data-color-output>#1F2B2E</output></span></label>
+          </div>
+          <div class="actions">
+            <button class="button button-primary" type="button" data-copy><span>Copiar assinatura</span><span class="button-arrow">↗</span></button>
+            <button class="button button-quiet" type="button" data-download>Baixar HTML</button>
+            <button class="button button-save" type="button" data-save>Salvar dados <span>↗</span></button>
+          </div>
+          <p class="status" data-status role="status" aria-live="polite"></p>
+        </form>
+
+        <section class="preview-panel" aria-label="Preview da assinatura">
+          <div class="preview-top"><div><span class="preview-label">PREVIEW AO VIVO</span><span class="preview-device">Desktop</span></div><span class="preview-size">Largura recomendada · 600px</span></div>
+          <div class="preview-stage"><div class="preview" data-preview></div></div>
+          <div class="preview-footer"><span class="check">✓</span><span>Compatível com Gmail, Outlook e Apple Mail</span></div>
+        </section>
+      </section>
+
+      <section class="save-banner"><div class="save-icon">↗</div><div><strong>Pronto para a equipe?</strong><p>Configure o Google Apps Script para guardar as assinaturas no Sheets e os arquivos no Drive.</p></div><button type="button" class="text-button" data-settings>Configurar conexão <span>→</span></button></section>
+    </main>
+  </div>
+  <dialog class="settings-dialog" data-dialog>
+    <form method="dialog" class="settings-card" data-settings-form>
+      <button class="dialog-close" value="cancel" aria-label="Fechar">×</button>
+      <span class="kicker">Integração</span><h2>Google Sheets + Drive</h2>
+      <p>Insira a URL do Web App do Apps Script. O endpoint recebe os dados, adiciona uma linha na planilha e salva um JSON no Drive.</p>
+      <label>URL do Apps Script<input type="url" data-endpoint placeholder="https://script.google.com/macros/s/.../exec"></label>
+      <div class="dialog-actions"><button class="button button-quiet" value="cancel">Cancelar</button><button class="button button-primary" value="default">Salvar configuração</button></div>
+      <p class="dialog-hint">A URL fica salva apenas neste navegador. Veja <code>google-apps-script/Code.gs</code> para configurar o endpoint.</p>
+    </form>
+  </dialog>
+  <script src="app.js"></script>
+</body>
+</html>
