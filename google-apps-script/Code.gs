@@ -14,11 +14,18 @@ function doPost(event) {
     const sheet = SpreadsheetApp.openById(SHEET_ID).getSheets()[0];
     if (sheet.getLastRow() === 0) sheet.appendRow(['createdAt', 'name', 'company', 'role', 'email', 'phone', 'website', 'logo', 'tagline', 'layout', 'driveFileId']);
     const createdAt = new Date();
-    const json = JSON.stringify(data, null, 2);
     const folder = DRIVE_FOLDER_ID ? DriveApp.getFolderById(DRIVE_FOLDER_ID) : getOrCreateFolder_();
+    let logoUrl = data.logo || '';
+    if (data.logo && /^data:image\/(png|jpeg|webp|gif);base64,/i.test(data.logo)) {
+      const match = data.logo.match(/^data:(image\/[a-z0-9.+-]+);base64,(.*)$/i);
+      const blob = Utilities.newBlob(Utilities.base64Decode(match[2]), match[1], `logo-${safeName_(data.name || 'sem-nome')}`);
+      folder.createFile(blob);
+      logoUrl = '';
+    }
+    const json = JSON.stringify(Object.assign({}, data, {logo: logoUrl}), null, 2);
     const file = folder.createFile(`assinatura-${safeName_(data.name || 'sem-nome')}-${createdAt.getTime()}.json`, json, MimeType.PLAIN_TEXT);
-    sheet.appendRow([createdAt, data.name || '', data.company || '', data.role || '', data.email || '', data.phone || '', data.website || '', data.logo || '', data.tagline || '', data.layout || '', file.getId()]);
-    return jsonResponse_({ok: true, fileId: file.getId()});
+    sheet.appendRow([createdAt, data.name || '', data.company || '', data.role || '', data.email || '', data.phone || '', data.website || '', logoUrl, data.tagline || '', data.layout || '', file.getId()]);
+    return jsonResponse_({ok: true, fileId: file.getId(), logoUrl: logoUrl});
   } catch (error) {
     return jsonResponse_({ok: false, error: String(error.message || error)});
   }

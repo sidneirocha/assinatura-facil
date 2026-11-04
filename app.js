@@ -8,13 +8,18 @@ const dialog = document.querySelector('[data-dialog]');
 const settingsButton = document.querySelector('[data-settings]');
 const settingsForm = document.querySelector('[data-settings-form]');
 const endpointInput = document.querySelector('[data-endpoint]');
+const logoFileInput = document.querySelector('[data-logo-file]');
+const logoName = document.querySelector('[data-logo-name]');
+const logoHelp = document.querySelector('[data-logo-help]');
+let uploadedLogo = '';
 
 const escapeHtml = value => String(value || '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-const publicUrl = value => /^https?:\/\//i.test(String(value || '').trim()) ? String(value).trim() : '';
+const publicUrl = value => /^(https?:\/\/|data:image\/(png|jpeg|webp|gif);base64,)/i.test(String(value || '').trim()) ? String(value).trim() : '';
 const linkUrl = value => { const clean = String(value || '').trim(); return clean ? (/^https?:\/\//i.test(clean) ? clean : `https://${clean}`) : ''; };
 const phoneUrl = value => { const digits = String(value || '').replace(/[^\d+]/g, ''); return digits ? `tel:${digits}` : ''; };
 const color = (value, fallback) => /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
 const values = () => Object.fromEntries([...form.querySelectorAll('[data-field]')].map(field => [field.dataset.field, field.value.trim()]));
+const currentLogo = () => uploadedLogo || values().logo || '';
 const layout = () => form.querySelector('input[name="layout"]:checked')?.value || 'aurora';
 
 function contactRow(letter, content, href, muted, primary, last = false) {
@@ -43,3 +48,4 @@ function showSettings() { endpointInput.value = localStorage.getItem('signature-
 async function saveData() { const endpoint = localStorage.getItem('signature-apps-script-url'); const payload = {...values(), layout: layout(), savedAt: new Date().toISOString()}; if (!endpoint) { localStorage.setItem('signature-draft', JSON.stringify(payload)); status.textContent = 'Rascunho salvo neste navegador. Configure o Google Sheets para salvar na equipe.'; return; } saveButton.disabled = true; status.textContent = 'Salvando no Google Sheets e Drive…'; try { const response = await fetch(endpoint, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload)}); if (!response.ok) throw new Error('save failed'); status.textContent = 'Dados salvos no Google Sheets e Drive.'; } catch { localStorage.setItem('signature-draft', JSON.stringify(payload)); status.textContent = 'Sem conexão com o Apps Script. Rascunho salvo localmente.'; } finally { saveButton.disabled = false; } }
 
 form.addEventListener('input', render); form.addEventListener('change', event => { if (event.target.name === 'layout') { document.querySelectorAll('.layout-card').forEach(card => card.classList.toggle('is-selected', card.querySelector('input').checked)); } render(); }); copyButton.addEventListener('click', copySignature); downloadButton.addEventListener('click', downloadSignature); saveButton.addEventListener('click', saveData); settingsButton.addEventListener('click', showSettings); settingsForm.addEventListener('submit', () => { localStorage.setItem('signature-apps-script-url', endpointInput.value.trim()); status.textContent = endpointInput.value.trim() ? 'Conexão do Google configurada.' : 'Conexão removida. Os rascunhos serão salvos localmente.'; }); render();
+logoFileInput.addEventListener('change', () => { const file = logoFileInput.files?.[0]; if (!file) return; if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) { logoFileInput.value = ''; logoName.textContent = 'Nenhum arquivo selecionado'; logoHelp.textContent = 'Escolha uma imagem válida de até 5 MB.'; status.textContent = 'O logo precisa ser PNG, JPG, WEBP ou GIF com até 5 MB.'; return; } const reader = new FileReader(); reader.onload = () => { form.querySelector('[data-field="logo"]').value = reader.result; logoName.textContent = file.name; logoHelp.textContent = 'Imagem pronta. Clique em salvar para enviar ao Google Drive.'; status.textContent = 'Logo carregado no preview.'; render(); }; reader.readAsDataURL(file); });
