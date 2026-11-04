@@ -42,7 +42,8 @@ function buildBaseSignatureMarkup(data) {
 
 function buildSignatureMarkup(data) {
   const background = color(data.background, '#ffffff');
-  return buildBaseSignatureMarkup(data).replace(/(<table[^>]*style="[^"]*)"/i, `$1;background-color:${background};"`);
+  const logoSize = Math.max(40, Math.min(180, Number(data.logoSize) || 120));
+  return buildBaseSignatureMarkup(data).replace(/(<table[^>]*style="[^"]*)"/i, `$1;background-color:${background};"`).replace(/width="(?:75|120)"/g, `width="${logoSize}"`).replace(/width:(?:75|120)px/g, `width:${logoSize}px`);
 }
 
 function render() { const data = values(); data.layout = layout(); preview.innerHTML = buildSignatureMarkup(data); document.documentElement.style.setProperty('--primary', color(data.primary, '#e8694f')); document.documentElement.style.setProperty('--ink', color(data.ink, '#1f2b2e')); document.querySelectorAll('[data-color-output]').forEach((output, index) => { const field = [data.primary, data.ink, data.background][index] || '#ffffff'; output.value = field.toUpperCase(); output.textContent = field.toUpperCase(); }); }
@@ -54,3 +55,4 @@ async function saveData() { const endpoint = localStorage.getItem('signature-app
 
 form.addEventListener('input', render); form.addEventListener('change', event => { if (event.target.name === 'layout') { document.querySelectorAll('.layout-card').forEach(card => card.classList.toggle('is-selected', card.querySelector('input').checked)); } render(); }); copyButton.addEventListener('click', copySignature); downloadButton.addEventListener('click', downloadSignature); saveButton.addEventListener('click', saveData); settingsButton.addEventListener('click', showSettings); settingsForm.addEventListener('submit', () => { localStorage.setItem('signature-apps-script-url', endpointInput.value.trim()); status.textContent = endpointInput.value.trim() ? 'Conexão do Google configurada.' : 'Conexão removida. Os rascunhos serão salvos localmente.'; }); render();
 logoFileInput.addEventListener('change', () => { const file = logoFileInput.files?.[0]; if (!file) return; if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) { logoFileInput.value = ''; logoName.textContent = 'Nenhum arquivo selecionado'; logoHelp.textContent = 'Escolha uma imagem válida de até 5 MB.'; status.textContent = 'O logo precisa ser PNG, JPG, WEBP ou GIF com até 5 MB.'; return; } const reader = new FileReader(); reader.onload = () => { form.querySelector('[data-field="logo"]').value = reader.result; logoName.textContent = file.name; logoHelp.textContent = 'Imagem pronta. Clique em salvar para enviar ao Google Drive.'; status.textContent = 'Logo carregado no preview.'; render(); }; reader.readAsDataURL(file); });
+form.querySelector('[data-logo-size]')?.addEventListener('input', event => { const output = document.querySelector('[data-logo-size-output]'); if (output) output.textContent = `${event.target.value}px`; });
